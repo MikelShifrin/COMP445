@@ -3,6 +3,7 @@ package http;
 import java.util.*;
 import java.net.*;
 import java.io.*;
+import org.apache.commons.cli.*;
 
 
 public class Http {
@@ -13,12 +14,16 @@ public class Http {
 		
 		PrintWriter pw = new PrintWriter(s.getOutputStream());
 		pw.println("GET /get HTTP/1.0");
-		pw.println("Host: httpbin.org");
-		pw.println("Accept: */*");
+		
+		String [] a = {"Host: httpbin.org", "Accept: */*"};
+		//System.out.print(headerList(a));
+		pw.print(headerList(a));
+		//pw.println("Host: httpbin.org");
+		//pw.println("Accept: */*");
 		pw.println("");
 		pw.flush();
 		
-		System.out.println(verbose(false));
+		System.out.println(verbose(true));
 		//System.out.println(help("p"));
 		
 
@@ -89,10 +94,11 @@ public class Http {
 	}
 	
 	public static String headerList(String[] keyValue) {
+		String headers = "";
 		for(int i=0; i < keyValue.length;i++) {
-			
+			headers += keyValue[i] + "\n";
 		}
-		return "bob";
+		return headers;
 	}
 
 }

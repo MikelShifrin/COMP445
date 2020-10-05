@@ -3,23 +3,28 @@ package http;
 import java.util.*;
 import java.net.*;
 import java.io.*;
-import org.apache.commons.cli.*;
+
 
 
 public class Http {
 	private static Socket s;
+	private String host = "";
+	private String path = "";
+	private String query = "";
+	private String body = "";
 	
+	/*
 	public static void main(String[] args) throws Exception{
 		s = new Socket(InetAddress.getByName("httpbin.org"), 80);
 		
 		PrintWriter pw = new PrintWriter(s.getOutputStream());
 		pw.println("GET /get HTTP/1.0");
 		
-		String [] a = {"Host: httpbin.org", "Accept: */*"};
+		String [] a = {"Host: httpbin.org", "Accept: *//*"};
 		//System.out.print(headerList(a));
 		pw.print(headerList(a));
 		//pw.println("Host: httpbin.org");
-		//pw.println("Accept: */*");
+		//pw.println("Accept: *//*");
 		pw.println("");
 		pw.flush();
 		
@@ -28,8 +33,50 @@ public class Http {
 		
 
 	}
-	
-	public static String verbose(boolean verbose) throws Exception{
+	*/
+	public String get(boolean verbose, String[] headers, String url) throws Exception{
+		
+		URL a = new URL(url);
+		host = a.getHost();
+		path = a.getPath();
+		query = a.getQuery();
+		s = new Socket(InetAddress.getByName(host), 80);
+		PrintWriter pw = new PrintWriter(s.getOutputStream());
+		//System.out.println(path);
+		//System.out.println(query);
+		if(query == null) {
+			pw.println("GET " + path  + " HTTP/1.0");
+		}
+		else {
+			pw.println("GET " + path + "?" + query + " HTTP/1.0");
+		}
+		System.out.println("got until headers inside get");
+		if(headers != null) {
+			pw.print(headerList(headers));
+		}
+		pw.println("");
+		pw.flush();
+		return verbose(verbose);
+	}
+	public String post(boolean verbose, String[] headers, String url, String body) throws Exception{
+		URL a = new URL(url);
+		host = a.getHost();
+		path = a.getPath();
+		query = a.getQuery();
+		this.body = body;
+		s = new Socket(InetAddress.getByName(host), 80);
+		PrintWriter pw = new PrintWriter(s.getOutputStream());
+		//System.out.println(path);
+		//System.out.println(query);
+		pw.println("POST " + path + " HTTP/1.0");
+		pw.print(headerList(headers));
+		pw.println("Content-Length: " + body.length());
+		pw.println("");
+		pw.println(this.body);
+		pw.flush();
+		return verbose(verbose);
+	}
+	public String verbose(boolean verbose) throws Exception{
 		Scanner response = new Scanner(s.getInputStream());
 		String line = "";
 		if(verbose) {
@@ -56,7 +103,7 @@ public class Http {
 		return line;
 	}
 	
-	public static String help(String type) {
+	public String help(String type) {
 		switch(type) {
 		  case "get":
 			  return "usage: httpc get [-v] [-h key:value] URL\n\n" +
@@ -93,7 +140,7 @@ public class Http {
 		}
 	}
 	
-	public static String headerList(String[] keyValue) {
+	public String headerList(String[] keyValue) {
 		String headers = "";
 		for(int i=0; i < keyValue.length;i++) {
 			headers += keyValue[i] + "\n";
